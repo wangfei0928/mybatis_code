@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wf.mapper.OrderMapper">
+    <!--        一对一关联查询，查询所有订单，与此同时还要查询每个订单所属的用户信息。-->
+    
+    <resultMap id="orderMap" type="com.wf.domain.Orders">
+        <id property="id" column="id"></id>
+        <result property="ordertime" column="ordertime"></result>
+        <result property="total" column="total"></result>
+        <result property="uid" column="uid"></result>
+
+        <!--
+            association: 在进行一对一关联查询配置时，使用association标签进行关联
+                  property = "user" 要封装实体的属性名
+                  javaType="com.wf.domain.User"
+        -->
+        <association property="user" javaType="com.wf.domain.User">
+            <id property="id" column="uid"></id>
+            <result property="username" column="username"></result>
+            <result property="birthday" column="birthday"></result>
+            <result property="sex" column="sex"></result>
+            <result property="address" column="address"></result>
+        </association>
+    </resultMap>
+
+    <select id="findAllWithUser" resultMap="orderMap">
+        SELECT * from orders o left join user  u on o.uid = u.id
+    </select>
+
+<!--    一对一嵌套查询-->
+    <resultMap id="orderMap2" type="com.wf.domain.Orders">
+        <id property="id" column="id"></id>
+        <result property="ordertime" column="ordertime"></result>
+        <result property="total" column="total"></result>
+        <result property="uid" column="uid"></result>
+        
+        <association property="user" javaType="com.wf.domain.User" select="com.wf.mapper.UserMapper.findByid" column="uid">
+
+        </association>
+
+    </resultMap>
+    
+    <select id="findAllWithUser2" resultMap="orderMap2">
+        SELECT * from orders
+    </select>
+
+    <select id="findByUid" parameterType="int" resultType="com.wf.domain.Orders">
+        select * from orders where uid = #{uid}
+    </select>
+</mapper>
